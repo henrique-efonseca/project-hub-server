@@ -1,0 +1,14 @@
+---
+- name: Deploy Apache Reverse Proxy
+  hosts: web
+  become: true
+  vars:
+    proxy_docker_image: "my-apache-proxy"
+    proxy_docker_container: "apache-proxy"
+  roles:
+    - reverse_proxy
+
+- name: Create Docker network
+  docker_network:
+    name: my_network
+    state: present

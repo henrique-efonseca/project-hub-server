@@ -1,0 +1,13 @@
+---
+- name: Load environment variables
+  hosts: localhost
+  tasks:
+    - include_vars: ../load_env.yml
+
+- hosts: web
+  become: true
+  vars:
+    website_path: "{{ WEBSITE_PATH }}"
+
+  roles:
+    - website

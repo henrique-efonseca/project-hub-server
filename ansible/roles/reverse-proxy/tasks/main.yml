@@ -1,0 +1,66 @@
+---
+- name: Ensure Docker is installed
+  apt:
+    name: docker.io
+    state: present
+  become: true
+
+- name: Ensure Docker service is running
+  service:
+    name: docker
+    state: started
+    enabled: true
+  become: true
+
+- name: Create Docker network
+  docker_network:
+    name: my_network
+    state: present
+
+- name: Copy Dockerfile
+  copy:
+    src: Dockerfile
+    dest: /tmp/Dockerfile
+
+- name: Copy httpd.conf
+  copy:
+    src: httpd.conf
+    dest: /tmp/httpd.conf
+
+- name: Copy SSL certificates
+  copy:
+    src: certs/
+    dest: /tmp/certs/
+    mode: '0644'
+  become: true
+
+- name: Build Docker image
+  command: docker build -t my-apache-proxy /tmp
+  args:
+    chdir: /tmp
+
+- name: Stop and remove existing Docker container
+  docker_container:
+    name: "apache-proxy"
+    state: absent
+  ignore_errors: yes
+
+- name: Remove old Docker containers
+  command: docker container prune -f
+
+- name: Remove old Docker images
+  command: docker image prune -f
+
+- name: Run Docker container
+  docker_container:
+    name: "apache-proxy"
+    image: "my-apache-proxy"
+    state: started
+    restart_policy: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /tmp/certs:/usr/local/apache2/certs
+    networks:
+      - name: my_network

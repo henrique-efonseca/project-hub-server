@@ -1,0 +1,12 @@
+---
+- hosts: web
+  become: true
+  vars:
+    blog_path: /path/to/blog
+    website_path: /path/to/website
+    reverse_proxy_path: /path/to/proxy
+
+  roles:
+    - website
+    - blog
+    - reverse-proxy

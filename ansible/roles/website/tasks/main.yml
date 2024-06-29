@@ -1,0 +1,42 @@
+---
+- name: Ensure project directory exists
+  file:
+    path: "{{ website_path }}"
+    state: directory
+
+- name: Clone the latest version of website
+  git:
+    repo: 'https://github.com/your-repo/website.git'
+    dest: "{{ website_path }}"
+    version: main
+
+- name: Copy .env file for website
+  copy:
+    src: "{{ playbook_dir }}/../files/website.env"
+    dest: "{{ website_path }}/.env"
+    mode: '0644'
+
+- name: Pull the latest Docker images for website
+  command: docker-compose pull
+  args:
+    chdir: "{{ website_path }}"
+
+- name: Build and start Docker containers for website
+  command: docker-compose up --build -d
+  args:
+    chdir: "{{ website_path }}"
+
+- name: Remove unused Docker images for website
+  command: docker image prune -f
+
+- name: Ensure SSL certificate and key are in place
+  copy:
+    src: "{{ ssl_cert_path }}"
+    dest: "/etc/ssl/certs/certificate.pem"
+    mode: '0644'
+
+- name: Ensure SSL private key is in place
+  copy:
+    src: "{{ ssl_key_path }}"
+    dest: "/etc/ssl/private/privatekey.pem"
+    mode: '0600'

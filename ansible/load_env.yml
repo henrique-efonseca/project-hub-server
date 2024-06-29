@@ -1,0 +1,27 @@
+- name: Load environment variables from .env file
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Read .env file
+      slurp:
+        src: "{{ playbook_dir }}/../.env"
+      register: envfile
+
+    - name: Set environment variables
+      set_fact:
+        env_vars: "{{ dict(envfile.content | b64decode | splitlines | select('match', '^[^#]') | map('split', '=', 1) | list) }}"
+
+    - name: Export environment variables
+      set_fact:
+        BASE_DIR: "{{ env_vars.BASE_DIR }}"
+        ANSIBLE_DIR: "{{ env_vars.ANSIBLE_DIR }}"
+        COPY_SCRIPT: "{{ env_vars.COPY_SCRIPT }}"
+        BLOG_PATH: "{{ env_vars.BLOG_PATH }}"
+        WEBSITE_PATH: "{{ env_vars.WEBSITE_PATH }}"
+        REVERSE_PROXY_PATH: "{{ env_vars.REVERSE_PROXY_PATH }}"
+        ansible_user: "{{ env_vars.ANSIBLE_USER }}"
+        ansible_host: "{{ env_vars.ANSIBLE_HOST }}"
+        ansible_ssh_private_key_file: "{{ env_vars.ANSIBLE_SSH_PRIVATE_KEY_FILE }}"
+        ansible_ssh_public_key_file: "{{ env_vars.ANSIBLE_SSH_PUBLIC_KEY_FILE }}"
+        ssl_cert_path: "{{ env_vars.SSL_CERT_PATH }}"
+        ssl_key_path: "{{ env_vars.SSL_KEY_PATH }}"

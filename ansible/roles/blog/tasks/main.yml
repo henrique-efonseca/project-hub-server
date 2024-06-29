@@ -1,0 +1,30 @@
+---
+- name: Ensure project directory exists
+  file:
+    path: "{{ blog_path }}"
+    state: directory
+
+- name: Clone the latest version of blog
+  git:
+    repo: 'https://github.com/your-repo/blog.git'
+    dest: "{{ blog_path }}"
+    version: main
+
+- name: Copy .env file for blog
+  copy:
+    src: "{{ playbook_dir }}/../files/blog.env"
+    dest: "{{ blog_path }}/.env"
+    mode: '0644'
+
+- name: Pull the latest Docker images for blog
+  command: docker-compose pull
+  args:
+    chdir: "{{ blog_path }}"
+
+- name: Build and start Docker containers for blog
+  command: docker-compose -p blog-service up --build -d
+  args:
+    chdir: "{{ blog_path }}"
+
+- name: Remove unused Docker images for blog
+  command: docker image prune -f
