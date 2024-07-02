@@ -39,3 +39,4 @@ terraform.rc
 # Ignore .env files
 .env
 /reverse-proxy/certs
+ssh/*
