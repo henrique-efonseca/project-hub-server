@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../../reverse-proxy/config/nginx_development.conf:/etc/nginx/nginx.conf
+    networks:
+      - project_hub_network
+
+networks:
+  project_hub_network:
+    external: true
