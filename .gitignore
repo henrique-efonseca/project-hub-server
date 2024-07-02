@@ -40,3 +40,4 @@ terraform.rc
 .env
 /reverse-proxy/certs
 ssh/*
+/scripts/logs
